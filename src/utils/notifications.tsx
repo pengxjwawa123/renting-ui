@@ -1,16 +1,21 @@
-export type Notification = {
-  type: "success" | "info" | "error" | "confirm",
-  title: "string",
-  description?: null | string,
-  txid?: string,
-  show: boolean,
-  id: number,
-}
+import useNotificationStore from "../hooks/useNotificationStore";
 
-export function notify(newNotification: {
-  type?: "success" | "info" | "error" | "confirm",
-  title: string,
+export const notify = (newNotification: {
+  type?: string,
+  title?: string,
+  message?: string,
   description?: string,
   txid?: string,
-}) {
+}) => {
+  const {
+    notifications,
+    set: setNotificationStore
+  } = useNotificationStore.getState();
+
+  setNotificationStore((state: {notifications: any[]}) => {
+    state.notifications = [
+      ...notifications,
+      { type: 'success', ...newNotification},
+    ]
+  })
 }

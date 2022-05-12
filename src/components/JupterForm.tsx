@@ -15,6 +15,7 @@ import { GrRotateRight } from "react-icons/gr";
 import { Button } from './Button';
 import { route } from 'next/dist/server/router';
 import { RouteList } from './RoutesList';
+import { notify } from '../utils/notifications';
 import SwapTokenSelect from './SwapTokenSelect';
 import { SlippageSettingsModal } from './SlippageSettingsModal';
 import Modal from './Modal';
@@ -330,11 +331,11 @@ type useJupter = Omit<useJupiterProps, 'amount'> & { amount: null | number };
             <GrRotateRight className={`${loading ? "animate-refreshspin" : ""}`}/>
           </button>
           <button
-            className="flex justify-center items-center p-1 px-2 rounded-lg bg-white"
+            className="flex justify-center items-center p-1 px-2 rounded-lg bg-white text-md"
             onClick={() => setShowSlippageSettingModal(true)}
             >
             <AdjustmentsIcon height={20}/>
-            <span>&nbsp;{slippage.toString()}%</span>
+            <span className="text-center">&nbsp;{slippage.toString()} %</span>
           </button>
         </div>
       </div>
@@ -514,7 +515,7 @@ type useJupter = Omit<useJupiterProps, 'amount'> & { amount: null | number };
           <Button 
             onClick={async () => {
               if (!connected && zeroKey !== publicKey) {
-                handleConnect()
+                // handleConnect()
               } else if (!loading && selectedRoute && connected && wallet && signAllTransactions && signTransaction) {
                 setSwapping(true)
                 let txCount = 1;
