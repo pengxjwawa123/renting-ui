@@ -15,6 +15,6 @@
     "jsx": "preserve",
     "incremental": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/components/Modal.tsx", "src/components/modal.jsx", "src/components/TokenSwapSelect.jsx", "src/components/TokenSwapSelect.jsx", "src/components/TokenSwapSelect.jsx", "src/components/ButtonGroup.jsx"],
   "exclude": ["node_modules"]
 }
