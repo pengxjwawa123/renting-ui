@@ -2,6 +2,7 @@ import { FC, useEffect, useState, useMemo, useCallback } from 'react';
 import { TOKEN_LIST_URL, RouteInfo } from '@jup-ag/core';
 import { useJupiter } from '@jup-ag/react-hook';
 import { PublicKey, Connection } from '@solana/web3.js';
+import { Wallet } from '@solana/wallet-adapter-react';
 // import { TokenInstructions } from '@project-serum/serum';
 import { result, runInContext, sortBy, values } from 'lodash';
 import { getTokenAccountsByOwnerWithWrappedSol,
@@ -20,6 +21,7 @@ import SwapTokenSelect from './SwapTokenSelect';
 import { SlippageSettingsModal } from './SlippageSettingsModal';
 import Modal from './Modal';
 import { connect } from 'tls';
+import { WalletReadyState } from '@solana/wallet-adapter-base';
 
 export interface Token {
   chainId: number // 101,
@@ -105,6 +107,23 @@ type useJupter = Omit<useJupiterProps, 'amount'> & { amount: null | number };
       ...val,
       amount: inputTokenBalance(),
     }))
+  }
+  
+  const handleWalletConnect = (wallet: Wallet | null) => {
+    if (!wallet) return;
+    if (wallet.readyState === WalletReadyState.NotDetected) {
+      window.open(wallet.adapter.url, "_black");
+    } else {
+      wallet?.adapter?.connect().catch((e) => {
+        if (e.name.includes("WalletLoadError")) {
+          notify({
+            type: "error",
+            title: `${wallet.adapter.name} Error`,
+            description: `Please install ${wallet.adapter.name} and then reload this page`,
+          })
+        }
+      })
+    }
   }
 
   useEffect(() => {
@@ -234,10 +253,10 @@ type useJupter = Omit<useJupiterProps, 'amount'> & { amount: null | number };
     if (!coinGeckoList?.length) return;
     setTokenPrices(null);
     const fetchTokenPrices = async () => {
-      const inputId = coinGeckoList.find((t) => inputTokenInfos?.extensions?.coingeckoId ?
+      const inputId = coinGeckoList.find((t: any) => inputTokenInfos?.extensions?.coingeckoId ?
         t?.id === inputTokenInfos.extensions.coingeckoId : 
         t?.symbol?.toLowerCase() === inputTokenInfo?.symbol?.toLowerCase())?.id;
-      const outputId = coinGeckoList.find((t) => outputTokenInfos.extensions.coingeckoId ? 
+      const outputId = coinGeckoList.find((t: any) => outputTokenInfos.extensions.coingeckoId ? 
         t?.id === outputTokenInfos.extensions.coingeckoId : 
         t?.symbol?.toLowerCase() === outputTokenInfo?.symbol.toLowerCase())?.id;
 
@@ -267,7 +286,7 @@ type useJupter = Omit<useJupiterProps, 'amount'> & { amount: null | number };
     )
     const data = await response.json()
 
-    const feeValue = selectedRoute.marketInfos.reduce((a, c) => {
+    const feeValue = selectedRoute.marketInfos.reduce((a, c): any => {
       const feeToken = tokens.find((item) => item?.address === c.lpFee?.mint)
       // FIXME: Remove ts-ignore possibly move the logic out of a reduce
       // @ts-ignore
@@ -510,12 +529,12 @@ type useJupter = Omit<useJupiterProps, 'amount'> & { amount: null | number };
           </div>
         ) : null}
 
-
+      {/*** swap button and exchange logic ***/}
         <div className="mt-10">
           <Button 
             onClick={async () => {
               if (!connected && zeroKey !== publicKey) {
-                // handleConnect()
+                handleWalletConnect(wallet)
               } else if (!loading && selectedRoute && connected && wallet && signAllTransactions && signTransaction) {
                 setSwapping(true)
                 let txCount = 1;
@@ -684,10 +703,8 @@ type useJupter = Omit<useJupiterProps, 'amount'> & { amount: null | number };
             </div>
           </div>
         ) : null }
-
       </div>
       
-
       {/*** show found routes ***/}
       {showFoundRoutes ? (
         <Modal

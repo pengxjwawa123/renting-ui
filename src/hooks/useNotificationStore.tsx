@@ -3,13 +3,13 @@ import produce from "immer";
 
 export interface NotificationStore extends State {
   notifications: Array<{
-    type: string
-    title?:string
-    message: string
-    description?: string
-    txid?: string
+    type: string,
+    title?:string,
+    message?: string,
+    description?: string,
+    txid?: string,
   }>
-  set: (x: any) => void
+  set: (x: any) => void,
 }
 
 const useNotificationStore = create<NotificationStore>((set, _get) => ({
